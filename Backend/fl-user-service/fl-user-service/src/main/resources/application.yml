@@ -1,0 +1,100 @@
+server:
+  port: 8081
+
+#microservices configuration
+spring:
+  application:
+    name: fl-user-service
+  #database configuration:mysql
+  datasource:
+    url: jdbc:mysql://mysqlffdb.chevdymucho3.eu-west-1.rds.amazonaws.com/fl_users?useSSL=false
+    username: bheem
+    password: VNSGUfreelance
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/
+
+
+db:
+  queries:
+    users:
+      insertUser: INSERT INTO users(FirstName,LastName,Email,PhotoUrl) values(?,?,?,?)
+      updateUser: UPDATE users set FirstName=?, LastName=?, HeadLine=?, Summary=?, Company=?, PhNo=? WHERE UserId=?
+      getUserDetails:
+        SELECT u.UserId, u.FirstName, u.LastName,u.HeadLine,u.Summary,u.Company, u.Email, u.PhNo,u.IsVerified, u.PhotoUrl,u.UserRole,u.CreatedDate,cr.CountryId, cr.CountryName, s.StateId , s.StateName ,c.cityId,c.cityName,ul.Pincode,ul.Address1,ul.Address2
+        FROM users u
+        LEFT join userlocation ul on u.UserId=ul.UserId
+        LEFT join cities c on ul.CityId=c.CityId
+        LEFT join states s on c.StateId =s.StateId
+        LEFT JOIN countries cr on s.CountryId=cr.CountryId
+      getUserDetailsByCountryId:
+        SELECT u.UserId, u.FirstName, u.LastName,u.HeadLine,u.Summary,u.Company, u.Email, u.PhNo,u.IsVerified, u.PhotoUrl,u.UserRole,u.CreatedDate,cr.CountryId, cr.CountryName, s.StateId , s.StateName ,c.cityId,c.cityName,ul.Pincode,ul.Address1,ul.Address2
+        FROM users u
+        LEFT join userlocation ul on u.UserId=ul.UserId
+        LEFT join cities c on ul.CityId=c.CityId
+        LEFT join states s on c.StateId =s.StateId
+        LEFT JOIN countries cr on s.CountryId=cr.CountryId
+        WHERE cr.CountryId=?
+      getUserDetailsByLanguageIds:
+        SELECT u.UserId, u.FirstName, u.LastName,u.HeadLine,u.Summary,u.Company, u.Email, u.PhNo,u.IsVerified, u.PhotoUrl,u.UserRole,u.CreatedDate,cr.CountryId, cr.CountryName, s.StateId , s.StateName ,c.cityId,c.cityName,ul.Pincode,ul.Address1,ul.Address2
+        FROM users u
+        LEFT join userlocation ul on u.UserId=ul.UserId
+        LEFT join cities c on ul.CityId=c.CityId
+        LEFT join states s on c.StateId =s.StateId
+        LEFT JOIN countries cr on s.CountryId=cr.CountryId
+        WHERE u.UserId IN (SELECT DISTINCT UserId from userlanguages WHERE LanguageId IN(:languageIds))
+      getUserDetailsByUserId:
+        SELECT u.UserId, u.FirstName, u.LastName,u.HeadLine,u.Summary,u.Company, u.Email, u.PhNo,u.IsVerified, u.PhotoUrl,u.UserRole,u.CreatedDate,cr.CountryId, cr.CountryName, s.StateId , s.StateName ,c.cityId,c.cityName,ul.Pincode,ul.Address1,ul.Address2
+        FROM users u
+        LEFT join userlocation ul on u.UserId=ul.UserId
+        LEFT join cities c on ul.CityId=c.CityId
+        LEFT join states s on c.StateId =s.StateId
+        LEFT JOIN countries cr on s.CountryId=cr.CountryId
+        WHERE u.UserId=?
+      getUserDetailsByEmail:
+        SELECT u.UserId, u.FirstName, u.LastName,u.HeadLine,u.Summary,u.Company, u.Email, u.PhNo,u.IsVerified, u.PhotoUrl,u.UserRole,u.CreatedDate,cr.CountryId, cr.CountryName, s.StateId , s.StateName ,c.cityId,c.cityName,ul.Pincode,ul.Address1,ul.Address2
+        FROM users u
+        LEFT join userlocation ul on u.UserId=ul.UserId
+        LEFT join cities c on ul.CityId=c.CityId
+        LEFT join states s on c.StateId =s.StateId
+        LEFT JOIN countries cr on s.CountryId=cr.CountryId
+        WHERE u.Email=?
+      getUserDetailsInUserIds:
+        SELECT u.UserId, u.FirstName, u.LastName,u.HeadLine,u.Summary,u.Company, u.Email, u.PhNo,u.IsVerified, u.PhotoUrl,u.UserRole,u.CreatedDate,cr.CountryId, cr.CountryName, s.StateId , s.StateName ,c.cityId,c.cityName,ul.Pincode,ul.Address1,ul.Address2
+        FROM users u
+        LEFT join userlocation ul on u.UserId=ul.UserId
+        LEFT join cities c on ul.CityId=c.CityId
+        LEFT join states s on c.StateId =s.StateId
+        LEFT JOIN countries cr on s.CountryId=cr.CountryId
+        WHERE u.UserId IN (:userId)
+      getLanguagesByUserId:
+        SELECT l.LanguageId, l.LanguageName from users u, languages l, userlanguages ul where
+        u.UserId=ul.UserId and l.LanguageId=ul.LanguageId and u.UserId=?
+
+    userLanguages:
+      insertUserLanguages: INSERT INTO userlanguages(UserId,LanguageId) values(?,?)
+
+    userLocation:
+      addUserLocation: INSERT INTO userlocation(UserId, CityId, Pincode, Address1, Address2) values (?,?,?,?,?)
+      updateUserLocation: UPDATE userlocation set CityId = ?, Pincode = ?, Address1 = ?, Address2 = ? where UserId = ?
+      getUserLocation: SELECT ul.* , s.StateId, cnt.CountryId from userlocation ul
+                        INNER JOIN cities c on ul.CityId=c.CityId
+                        INNER JOIN states s on c.StateId = s.StateId
+                        INNER JOIN countries cnt ON cnt.CountryId = s.CountryId WHERE ul.UserId = ?
+
+
+    portfolio:
+      insertPortfolio: INSERT INTO portfolio(UserId,Title,Description,ImageURL) values(?,?,?,?)
+      getPortfolio: SELECT * from portfolio where UserId = ?
+      deletePortfolio: DELETE from portfolio where PortfolioId= ?
+
+
+service:
+  props:
+    webServices:
+      fl-project-service:
+        endpoint: http://localhost:8083/flp/projects/rating
+      fl-skill-service:
+        endpoint: http://localhost:8082/fls/user-skills

@@ -1,0 +1,113 @@
+<section class="lg:py-52 sm:py-36 sm:px-2 md:px-5 py-36 bg-slate-100">
+  <div class="w-full lg:container">
+    <div
+      class="bg-emerald-500 items-center border rounded-xl shadow-md hover:bg-emerald-500 transition duration-300 ease-in-out flex justify-between ">
+      <div class="ml-3 text-white flex-auto py-2 inline-block ">
+        <ng-container *ngIf="skillName;else elseTemplate">
+          <span class="text-2xl font-medium text">{{skillName}}</span>
+        </ng-container>
+        <ng-template #elseTemplate>
+          <span class="text-2xl font-medium text">All Projects</span>
+        </ng-template>
+      </div>
+      <div class="p-2 w-96" >
+        <div class="bg-white rounded-md h-12 p-3">
+            <input
+              class="appearance-none bg-transparent border-none  text-gray-700 leading-tight focus:outline-none text-xl"
+              type="text" placeholder="Search Projects" aria-label="Full name" [(ngModel)]="searchValue" on>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-flow-row md:grid-cols-5 gap-3">
+      <div class="flex flex-col mt-14">
+        <div class="bg-white rounded-md">
+          <div class="p-3">
+            <p class="font-semibold ">Filters</p>
+          </div>
+          <hr />
+          <div class="min-h-[20%] mt-4">
+            <div class="bg-white rounded-md gird grid-rows-2 container min-h-[20%]">
+              <div>
+                <div class="relative">
+                  <div>
+                    <button type="button"
+                      class="inline-flex flex-initial w-full mt-2 justify-center items-center px-4 py-2 border border-gray-300 bg-white text-sm leading-5 font-medium rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      {{ selectedOptions.length > 0 ? selectedOptions.length + ' selected' : 'Select Skills' }}
+                    </button>
+                  </div>
+                  <div class="overflow-y-scroll h-40 w-full rounded-md bg-white shadow-lg mt-1">
+                    <ul>
+                      <li *ngFor="let skill of skillOptions " class="p-2">
+                        <label class="inline-flex items-center">
+                          <input type="checkbox"
+                            class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                            [checked]="isSelected(skill.skillId)" (change)="toggleOption(skill.skillName,skill.skillId)">
+                          <span class="ml-2">{{ skill.skillName }}</span>
+                        </label>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="mt-4">
+                  Selected Skills:
+                  <ul class="px-5">
+                    <li *ngFor="let selectedOption of selectedOptions">- {{ selectedOption }}</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="flex flex-col items-center my-8" >
+                <fl-button type="ngSubmit" name="Search" size="M" shade="W" animation="F" (click)="getProjectsBySkills()" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="md:col-span-4 lg:col-span-4 mt-12">
+        <div class="grid grid-cols-4 group mt-2 bg-white border rounded-lg "
+          *ngFor="let item of data | paginate: { itemsPerPage: 10, currentPage: p } | filter:searchValue">
+          <div class="col-span-3 group-hover:bg-slate-200 rounded-sm">
+            <div class="grid grid-rows-3 items-center ml-5">
+              <div class="inline-block text-emerald-500  text-xl">
+                <h2><b>{{item.projectName}}</b></h2>
+              </div>
+              <div class="flex gap-2 items-center ">
+                <p class="">Budget</p>
+                <p>{{item.minPrice}} - {{item.maxPrice}}</p>
+                <p>INR</p>
+              </div>
+              <div class="">
+                <p class="text-clip overflow-hidden h-12">{{item.projectDescription}}
+                </p>
+              </div>
+              <div class="flex text-emerald-500 gap-3 my-2">
+                <div class="" *ngFor="let projectSkill of item.skills">
+                  <p>{{projectSkill.skillName}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="grid grid-rows-3 min-h-full items-center group-hover:bg-slate-200">
+              <div class="place-self-center">
+                <p><span class="font-bold underline">₹ {{countAvgBid(item.bids)}} </span> Avg Bid
+                </p>
+              </div>
+              <div class="place-self-center">
+                <p>{{item.bids.length}} Bids</p>
+              </div>
+              <div class="place-self-center">
+                <fl-button class="hidden group-hover:block" size="S" name="View Details" shade="D"
+                  [routerLink]="['project-details/',item.projectId]" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid justify-items-center mt-2">
+          <pagination-controls class="custom-pagination" (pageChange)="p = $event"></pagination-controls>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

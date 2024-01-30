@@ -1,0 +1,118 @@
+<section class="flex lg:py-1 sm:py-36 bg-slate-100">
+  <div class="bg-scroll bg-cover w-full mt-52 p-2">
+    <div class=" p-2 items-center container">
+      <div class="p-2 bg-emerald-500 rounded-md">
+        <div class="bg-white rounded-md h-12 p-3 w-96">
+            <input
+              class="appearance-none bg-transparent border-none  text-gray-700 leading-tight focus:outline-none text-xl"
+              type="text" placeholder="Search Freelancers" aria-label="Full name" [(ngModel)]="searchValue" on>
+        </div>
+      </div>
+    </div>
+    <div class="p-2  mt-2 ">
+      <div class="grid md:grid-cols-4 gap-10 h-full container p-2">
+        <div class=" bg-white col-span-3 rounded-md">
+          <div class="p-5 flex justify-between">
+            <p class="font-semibold">Top Results</p>
+            <p>Sort By</p>
+          </div>
+          <hr>
+          <div *ngFor="let users of userDetailsList  | paginate: { itemsPerPage: 10, currentPage: p }| filter:searchValue">
+            <div class="flex h-46 ">
+              <div class="p-3 w-40 h-40">
+                <img [src]="users.profileUrl" referrerpolicy="no-referrer" class="rounded-md w-full" alt=""
+                  onerror="this.src='./assets/images/UserAltImage.jpg'" />
+              </div>
+              <div class="p-2 w-auto space-y-2 flex-auto">
+                <div class="font-semibold flex gap-1">
+                  <p>{{users.firstName}}</p>
+                  <p>{{users.lastName}}</p>
+                </div>
+                <div class="flex justify-left">
+                  <p class="text-slate-600 text-md"><fl-rating [value]="4.0" /></p>
+                  <div class="flex ml-4 justify-between ">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                      <path fill-rule="evenodd"
+                        d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.544l.062.029.018.008.006.003zM10 11.25a2.25 2.25 0 100-4.5 2.25 2.25 0 000 4.5z"
+                        clip-rule="evenodd" />
+                    </svg>
+                    <a href="" class="hover:text-emerald-500 transition-all duration-500">{{users.state}}
+                      {{users.country}}</a>
+                  </div>
+                </div>
+                <div class="max-w-xl h-12">
+                  <p class=" overflow-hidden truncate"> {{users.summary}}</p>
+                </div>
+                <div class="flex justify-left gap-4 max-w-xl truncate ">
+                  <div *ngFor="let skill of users.skills " class="text-emerald-500">
+                    <p class="text-green-600 ">{{skill.skillName}}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="p-5 w-40 ">
+                <button
+                  class="flex-shrink-0 bg-teal-500 container mt-10 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white p-1 rounded"
+                  type="button" [routerLink]="['./',users.userId]">
+                  View Profile
+                </button>
+              </div>
+            </div>
+            <div>
+              <hr>
+            </div>
+          </div>
+          <div class="grid justify-items-center mt-2">
+            <pagination-controls class="custom-pagination" (pageChange)="p = $event"></pagination-controls>
+          </div>
+        </div>
+        <div class="">
+          <div class="flex flex-col">
+            <div class="bg-white rounded-md">
+              <div class="p-3">
+                <p class="font-semibold ">Filters</p>
+              </div>
+              <hr />
+              <div class="min-h-[20%] mt-4">
+                <div class="bg-white rounded-md gird grid-rows-2 container min-h-[20%]">
+                  <div>
+                    <div class="relative">
+                      <div>
+                        <button type="button"
+                          class="inline-flex flex-initial w-full mt-2 justify-center items-center px-4 py-2 border border-gray-300 bg-white text-sm leading-5 font-medium rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                          {{ selectedOptions.length > 0 ? selectedOptions.length + ' selected' : 'Select Skills' }}
+                        </button>
+                      </div>
+                      <div class="overflow-y-scroll h-40 w-full rounded-md bg-white shadow-lg mt-1">
+                        <ul>
+                          <li *ngFor="let skill of skillOptions" class="p-2">
+                            <label class="inline-flex items-center">
+                              <input type="checkbox"
+                                class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+                                [checked]="isSelected(skill.skillId)" (change)="toggleOption(skill.skillName,skill.skillId)">
+                              <span class="ml-2">{{ skill.skillName }}</span>
+                            </label>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="mt-4">
+                      Selected Skills:
+                      <ul class="px-5">
+                        <li *ngFor="let selectedOption of selectedOptions">- {{ selectedOption }}</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="flex flex-col items-center my-8" >
+                    <fl-button type="ngSubmit" name="Search" size="M" shade="W" animation="F" (click)="getUsersBySkills()" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
